@@ -25,8 +25,8 @@ USER_A_ID=$(create_user $TOKEN_ADMIN $DOMAIN_A_ID "User-A" "User-A-password")
 MEMBER_ROLE_ID=$(roleid_from_name $TOKEN_ADMIN "Member")
 echo Assigning Member role to User-A in Project-A
 add_inherited_project_role $TOKEN_ADMIN $PROJECT_A_ID $USER_A_ID $MEMBER_ROLE_ID
-echo Assigning Member role to User-A in Domain-A
-add_inherited_domain_role $TOKEN_ADMIN $DOMAIN_A_ID $USER_A_ID $MEMBER_ROLE_ID
+#echo Assigning Member role to User-A in Domain-A
+#add_inherited_domain_role $TOKEN_ADMIN $DOMAIN_A_ID $USER_A_ID $MEMBER_ROLE_ID
 
 
 echo Listing inherited roles on Project-A
@@ -41,11 +41,9 @@ curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/proje
 
 echo Listing role assignments
 curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/role_assignments?user.id=$USER_A_ID" | ./jq .
-#curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/role_assignments" | ./jq . | wc
 
 echo Listing effective role assignments
-#curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/role_assignments?effective" | ./jq .
-#curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/role_assignments?effective" | ./jq . | wc
+curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/role_assignments?effective&user.id=$USER_A_ID" | ./jq .
 
 echo Project-A id = $PROJECT_A_ID
 echo SubProject-A id = $SUBPROJECT_A_ID
