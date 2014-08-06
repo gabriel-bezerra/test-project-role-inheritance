@@ -101,6 +101,15 @@ function add_inherited_project_role() {
   curl -X PUT -H "X-Auth-Token: $TOKEN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/projects/$PROJECT_ID/users/$USER_ID/roles/$ROLE_ID/inherited_to_projects"
 }
 
+function add_inherited_domain_role() {
+  local TOKEN=$1
+  local DOMAIN_ID=$2
+  local USER_ID=$3
+  local ROLE_ID=$4
+
+  curl -X PUT -H "X-Auth-Token: $TOKEN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/domains/$DOMAIN_ID/users/$USER_ID/roles/$ROLE_ID/inherited_to_projects"
+}
+
 function roleid_from_name() {
   local TOKEN=$1
   local ROLE_NAME=$2
