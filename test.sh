@@ -18,6 +18,8 @@ echo Creating Project-A
 PROJECT_A_ID=$(create_project $TOKEN_ADMIN $DOMAIN_A_ID "Project-A")
 echo Creating SubProject-A
 SUBPROJECT_A_ID=$(create_subproject $TOKEN_ADMIN $DOMAIN_A_ID "SubProject-A" $PROJECT_A_ID)
+echo Creating Project-B
+PROJECT_B_ID=$(create_project $TOKEN_ADMIN $DOMAIN_A_ID "Project-B")
 
 echo Creating User-A
 USER_A_ID=$(create_user $TOKEN_ADMIN $DOMAIN_A_ID "User-A" "User-A-password")
@@ -30,7 +32,6 @@ add_inherited_project_role $TOKEN_ADMIN $PROJECT_A_ID $USER_A_ID $MEMBER_ROLE_ID
 
 
 echo Listing inherited roles on Project-A
-#curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/projects/$PROJECT_ID/users/$USER_ID/roles/$ROLE_ID/inherited_to_projects"
 curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/projects/$PROJECT_A_ID/users/$USER_A_ID/roles/inherited_to_projects" | ./jq .
 
 echo Listing inherited roles on SubProject-A
@@ -44,6 +45,21 @@ curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/role_
 
 echo Listing effective role assignments
 curl -X GET -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/role_assignments?effective&user.id=$USER_A_ID" | ./jq .
+
+echo Checking if User-A has inherited Member role on SubProject-A
+curl -X HEAD -w "%{http_code}" -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/projects/$SUBPROJECT_A_ID/users/$USER_A_ID/roles/$MEMBER_ROLE_ID/inherited_to_projects" | ./jq .
+
+echo Checking if User-A has inherited Member role on Project-B
+curl -X HEAD -w "%{http_code}" -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/projects/$PROJECT_B_ID/users/$USER_A_ID/roles/$MEMBER_ROLE_ID/inherited_to_projects" | ./jq .
+
+echo Revoking User-A\'s inherited Member role on SubProject-A
+curl -X DELETE -w "%{http_code}" -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/projects/$SUBPROJECT_A_ID/users/$USER_A_ID/roles/$MEMBER_ROLE_ID/inherited_to_projects" | ./jq .
+
+echo Revoking User-A\'s inherited Member role on Project-A
+curl -X DELETE -w "%{http_code}" -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/projects/$PROJECT_A_ID/users/$USER_A_ID/roles/$MEMBER_ROLE_ID/inherited_to_projects" | ./jq .
+
+echo Revoking User-A\'s inherited Member role on Project-B
+curl -X DELETE -w "%{http_code}" -H "X-Auth-Token: $TOKEN_ADMIN" "http://$KEYSTONE_HOST:5000/v3/OS-INHERIT/projects/$PROJECT_B_ID/users/$USER_A_ID/roles/$MEMBER_ROLE_ID/inherited_to_projects" | ./jq .
 
 echo Project-A id = $PROJECT_A_ID
 echo SubProject-A id = $SUBPROJECT_A_ID
